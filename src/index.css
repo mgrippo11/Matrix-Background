@@ -1,0 +1,10 @@
+body {
+    background: #334;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+canvas {
+    /* border: 2px solid rgb(0, 0, 0); */
+}

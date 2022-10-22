@@ -4,23 +4,33 @@ const ctx = canvas.getContext("2d");
 const WIDTH = canvas.width = innerWidth;
 const HEIGTH = canvas.height = innerHeight;
 const TEXT_HEIGHT = 20;
+let font = "monospace";
+
+const moveCanvas = () => {
+  document.body.classList.add("moved");
+  setTimeout(() => document.body.classList.remove("moved"), 300);
+};
 
 const generateCharacter = () => {
-  const characterIndex = Math.random() * 128;
-  return String.fromCharCode(characterIndex);
+  const CHARACTERS = Array.from(Array(94)).map((char, index) => String.fromCharCode(33 + index));
+  // const CHARACTERS = "!#$%&/()=?¡@[]ABCDFGHIJKLMNOPQRSTUVWXYX!#$%&/()=?¡@[]abcdfjhijklmnopqrstuvwxyz!#$%&/()=?¡@[]";
+  const randomIndex = Math.floor(Math.random() * CHARACTERS.length);
+  return CHARACTERS[randomIndex];
 };
 
 // Init
 const tColumns = Math.floor(WIDTH / TEXT_HEIGHT) + 1;
 const columns = [];
 for (let i = 0; i < tColumns; i++) {
-  const size = Math.floor(Math.random() * 8) + 10;
+  const size = Math.floor(Math.random() * 5) + 20;
   const letters = Array.from(Array(size)).map(char => generateCharacter());
-  const initialY = Math.floor(Math.random() * 500);
+  const initialY = -1000 + (-1 * Math.floor(Math.random() * 500));
+  const fastRandomSpeed = ~~(Math.random() * 20);
+  const speed = fastRandomSpeed === 0 ? 40 : 10 + Math.random() * 20;
   columns.push({
     y: initialY,
     letters,
-    speed: 20
+    speed
   });
 }
 
@@ -28,7 +38,7 @@ for (let i = 0; i < tColumns; i++) {
 ctx.fillStyle = "balck";
 ctx.fillRect(0, 0, WIDTH, HEIGTH);
 
-ctx.font = "10pt EnterCommand";
+ctx.font = `15pt ${font}`;
 
 const getColor = (index, array) => {
   const size = array.length;
@@ -61,10 +71,23 @@ const matrix = () => {
 
   columns.forEach((data, x) => {
     data.letters.forEach((letter, index, array) => {
+      const isWhite = index === array.length - 1;
       ctx.fillStyle = getColor(index, array);
+      isWhite && (letter = generateCharacter());
+      const random = Math.floor(Math.random() * 30);
+      random === 0 && (letter = generateCharacter());
       ctx.fillText(letter, x * TEXT_HEIGHT, data.y + index * TEXT_HEIGHT);
     });
+    data.y += data.speed;
+    if (data.y > HEIGTH) {
+      data.y = -500;
+      data.letters = Array.from(Array(data.letters.length)).map(char => generateCharacter());
+    }
   });
 };
 
-matrix();
+setInterval(matrix, 50);
+setTimeout(() => {
+  moveCanvas();
+  font = "Comic Sans MS";
+}, 8000);

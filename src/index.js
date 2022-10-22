@@ -1,57 +1,70 @@
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
 
-const WIDTH = canvas.width = window.innerWidth;
-const HEIGTH = canvas.height = window.innerHeight;
+const WIDTH = canvas.width = innerWidth;
+const HEIGTH = canvas.height = innerHeight;
 const TEXT_HEIGHT = 20;
 
-// Reset
-ctx.fillStyle = "balck";
-ctx.fillRect(0, 0, WIDTH, HEIGTH);
+const generateCharacter = () => {
+  const characterIndex = Math.random() * 128;
+  return String.fromCharCode(characterIndex);
+};
 
 // Init
 const tColumns = Math.floor(WIDTH / TEXT_HEIGHT) + 1;
 const columns = [];
 for (let i = 0; i < tColumns; i++) {
+  const size = Math.floor(Math.random() * 8) + 10;
+  const letters = Array.from(Array(size)).map(char => generateCharacter());
+  const initialY = Math.floor(Math.random() * 500);
   columns.push({
-    y: 0,
-    oldY: 0,
-    char: "",
-    oldChar: "",
+    y: initialY,
+    letters,
+    speed: 20
   });
 }
-// const columns = Array(tColumns).fill(0);
 
-const generateCharacter = () => {
-  const characterIndex = Math.random() * 128;
-  const character = String.fromCharCode(characterIndex);
-  return character;
+// Reset
+ctx.fillStyle = "balck";
+ctx.fillRect(0, 0, WIDTH, HEIGTH);
+
+ctx.font = "10pt EnterCommand";
+
+const getColor = (index, array) => {
+  const size = array.length;
+  const COLORS = [
+    "#0f01",
+    "#0f02",
+    "#0f05",
+    "#0f0f",
+    "#fff",
+  ];
+  const last = index === size - 1;
+  const first = index === 0;
+  const second = index === 1;
+  const third = index === 2;
+
+  return last
+    ? COLORS[4]
+    : first
+      ? COLORS[0]
+      : second
+        ? COLORS[1]
+        : third
+          ? COLORS[2]
+          : COLORS[3];
 };
 
 const matrix = () => {
-  ctx.fillStyle = "#0001";
+  ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, WIDTH, HEIGTH);
 
-  ctx.font = "10pt EnterCommand";
-
-  columns.forEach(({ y }, index) => {
-    const text = generateCharacter();
-    const x = index * TEXT_HEIGHT;
-
-    ctx.fillStyle = "#0f0";
-    ctx.fillText(text, x, y);
-
-    const maxHeigth = 100 + Math.random() * 10000;
-    columns[index].oldChar = columns[index].char;
-    columns[index].oldY = columns[index].y;
-    if (y > maxHeigth) {
-      columns[index].y = 0;
-      columns[index].char = text;
-    } else {
-      columns[index].y = y + TEXT_HEIGHT;
-      columns[index].char = text;
-    }
+  columns.forEach((data, x) => {
+    data.letters.forEach((letter, index, array) => {
+      ctx.fillStyle = getColor(index, array);
+      ctx.fillText(letter, x * TEXT_HEIGHT, data.y + index * TEXT_HEIGHT);
+    });
   });
 };
 
-setInterval(matrix, 50);
+matrix();
